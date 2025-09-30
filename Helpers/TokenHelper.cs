@@ -1,18 +1,26 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace JWTAuth.Helpers;
-
-public class TokenHelper
+namespace JWTAuth.Helpers
 {
-    private readonly string _secret = "super-secret-key-change-this";
-
-    public string Hash(string refreshToken)
+    public class TokenHelper
     {
-        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_secret));
-        var bytes = Encoding.UTF8.GetBytes(refreshToken);
-        var hash = hmac.ComputeHash(bytes);
-        return Convert.ToBase64String(hash);
+        // Rastgele refresh token üret
+        public string GenerateRandomToken()
+        {
+            var randomNumber = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        // Hashleme
+        public string Hash(string input)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(input);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        }
     }
-    
 }
