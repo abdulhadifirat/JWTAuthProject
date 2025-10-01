@@ -2,15 +2,24 @@
 {
     public class RefreshToken
     {
-        public int Id { get; set; }
-        public string TokenHash { get; set; } // SHA256 hash
+        public string TokenHash { get; set; } = "";
+
         public DateTime Expires { get; set; }
         public DateTime Created { get; set; }
-        public bool Revoked { get; set; }
-        public string ReplacedByTokenHash { get; set; }
-        public string CreatedByIp { get; set; }
-        public string RevokedByIp { get; set; }
-        public string UserId { get; set; } // FK
-        public ApplicationUser User { get; set; }
+
+        // Revokes
+        public bool IsRevoked { get; set; } = false;
+        public DateTime? RevokedAt { get; set; }
+        public string? RevokedBy { get; set; }
+        public string? RevokedByUserId { get; set; }
+
+        // Token rotation
+        public string? ReplacedByTokenHash { get; set; }
+
+        // Audit log
+        public string? CreatedByIp { get; set; }
+
+        public string UserId { get; set; } = "";
+        public ApplicationUser User { get; set; } = null!;
     }
 }

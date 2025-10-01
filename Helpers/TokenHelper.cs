@@ -5,7 +5,7 @@ namespace JWTAuth.Helpers
 {
     public class TokenHelper
     {
-        // Rastgele refresh token üret
+        // create random refresh token
         public string GenerateRandomToken()
         {
             var randomNumber = new byte[64];
@@ -14,7 +14,7 @@ namespace JWTAuth.Helpers
             return Convert.ToBase64String(randomNumber);
         }
 
-        // Hashleme
+        // Hashing
         public string Hash(string input)
         {
             using var sha256 = SHA256.Create();

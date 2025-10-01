@@ -14,4 +14,5 @@ namespace JWTAuth.Dtos
         public string RefreshToken { get; }
         public DateTime Expires { get; }
     }
+
 }

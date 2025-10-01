@@ -1,9 +1,11 @@
 using JWTAuth;
+using JWTAuth.Authorization;
 using JWTAuth.Helpers;
 using JWTAuth.Models;
 using JWTAuth.Seed;
 using JWTAuth.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,6 +39,23 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 // Partial Example:
 builder.Services.AddDbContext<ProjectDBContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+
+builder.Services.AddAuthorization(options =>
+{
+    // Create  policies automatically (optional)
+    foreach (var perm in Permissions.All)
+    {
+        options.AddPolicy($"Permission.{perm}", policy =>
+        {
+            policy.Requirements.Add(new PermissionRequirement(perm));
+        });
+    }
+
+    // Example: admin role policy (optional)
+    options.AddPolicy("RequireAdministratorRole", p => p.RequireRole("Admin"));
+});
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {

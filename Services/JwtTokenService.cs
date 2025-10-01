@@ -44,7 +44,6 @@ namespace JWTAuth.Services
             foreach (var r in roles)
                 claims.Add(new Claim(ClaimTypes.Role, r));
 
-            // role'lerin claim'lerini de ekle (ör: permissions)
             foreach (var role in roles)
             {
                 var identityRole = await _roleManager.FindByNameAsync(role);
@@ -55,7 +54,6 @@ namespace JWTAuth.Services
             var creds = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
             var expires = DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:AccessTokenMinutes"]));
 
-            // ✅ JWT oluştur
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
@@ -66,7 +64,6 @@ namespace JWTAuth.Services
 
             var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-            // ✅ Refresh Token üret ve kaydet
             var refreshToken = _tokenHelper.GenerateRandomToken();
             var refreshHash = _tokenHelper.Hash(refreshToken);
 
@@ -80,6 +77,16 @@ namespace JWTAuth.Services
             await _userManager.UpdateAsync(user);
 
             return new AuthResponseDto(accessToken, refreshToken, expires);
+        }
+
+        public string GenerateAccessToken(ClaimsIdentity claims, string key, string issuer, string audience, int expireMinutes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GenerateRefreshToken()
+        {
+            throw new NotImplementedException();
         }
     }
 }
