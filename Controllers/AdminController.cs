@@ -147,11 +147,11 @@ public class AdminController : ControllerBase
         return Ok(roles);
     }
 
-    // 10) Kullanıcının refresh token'larını iptal et (revoke all)
+    // 10)  (revoke all)
     [HttpPost("users/{userId}/revoke-refresh")]
-    public async Task<IActionResult> RevokeUserRefreshTokens(string userId)
+    public async Task<IActionResult> RevokeUserRefreshTokens(Guid userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) return NotFound();
 
         var tokens = await _db.RefreshTokens

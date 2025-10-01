@@ -8,27 +8,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
-builder.Services.AddAuthorization(options => {
-    options.AddPolicy("RequireAdministratorRole", p => p.RequireRole("Admin"));
-    // You can add dynamic permission policies below.
-});
-builder.Services.AddAuthorization(options =>
-{
-    foreach (var perm in Permissions.All)
-    {
-        // policy adý: Permission.<perm>
-        options.AddPolicy($"Permission.{perm}", policy =>
-            policy.RequireClaim("permission", perm));
-    }
 
-    // Bir örnek role-based policy (admin-only)
-    options.AddPolicy("RequireAdministratorRole", p => p.RequireRole("Admin"));
-});
+
 
 // Add services to the container.
 builder.Services.AddSingleton<TokenHelper>();
@@ -37,25 +25,29 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 // Partial Example:
-builder.Services.AddDbContext<ProjectDBContext>(opt =>
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 builder.Services.AddAuthorization(options =>
 {
-    // Create  policies automatically (optional)
+    options.AddPolicy("RequireAdministratorRole", p => p.RequireRole("Admin"));
+
     foreach (var perm in Permissions.All)
     {
         options.AddPolicy($"Permission.{perm}", policy =>
         {
+            policy.RequireClaim("permission", perm);
             policy.Requirements.Add(new PermissionRequirement(perm));
         });
     }
-
-    // Example: admin role policy (optional)
-    options.AddPolicy("RequireAdministratorRole", p => p.RequireRole("Admin"));
 });
+
+builder.Services.AddDbContext<ProjectDBContext>(options =>
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure())
+);
+
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
@@ -106,7 +98,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
