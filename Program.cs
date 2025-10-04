@@ -22,7 +22,35 @@ var configuration = builder.Configuration;
 builder.Services.AddSingleton<TokenHelper>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "JWT API", Version = "v1" });
+
+// JWT Bearer Auth
+c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+{
+    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+    Name = "Authorization",
+    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+    Scheme = "Bearer"
+});
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 // Partial Example:
 
@@ -81,6 +109,7 @@ builder.Services.AddAuthentication(options => {
 
 
 
+
 var app = builder.Build();
 
 // Move the seeding code after app is built
@@ -88,7 +117,16 @@ using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     await RoleSeeder.SeedRolesAndPermissionsAsync(roleManager);
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var adminUser = await userManager.FindByEmailAsync("admin@example.com");
+    if (adminUser == null)
+    {
+        adminUser = new ApplicationUser { UserName = "admin", Email = "admin@example.com" };
+        await userManager.CreateAsync(adminUser, "Admin123!");
+        await userManager.AddToRoleAsync(adminUser, "Admin");
+    }
 }
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

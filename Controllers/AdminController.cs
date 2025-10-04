@@ -149,7 +149,7 @@ public class AdminController : ControllerBase
 
     // 10)  (revoke all)
     [HttpPost("users/{userId}/revoke-refresh")]
-    public async Task<IActionResult> RevokeUserRefreshTokens(Guid userId)
+    public async Task<IActionResult> RevokeUserRefreshTokens(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) return NotFound();

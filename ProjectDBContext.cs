@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JWTAuth
 {
-    public class ProjectDBContext : IdentityDbContext<IdentityUser>
+    public class ProjectDBContext : IdentityDbContext<ApplicationUser>
     {
         public ProjectDBContext(DbContextOptions<ProjectDBContext> options)
             : base(options)
@@ -16,10 +16,9 @@ namespace JWTAuth
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
             base.OnModelCreating(modelBuilder);
 
-            // rpimary key for RefreshToken
+            // Primary key for RefreshToken
             modelBuilder.Entity<RefreshToken>().HasKey(rt => rt.Id);
         }
     }

@@ -2,7 +2,7 @@
 {
     public class RefreshToken
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public string TokenHash { get; set; } = "";
 
         public DateTime Expires { get; set; }
@@ -20,7 +20,7 @@
         // Audit log
         public string? CreatedByIp { get; set; }
 
-        public Guid UserId { get; set; } 
+        public string UserId { get; set; } 
         public ApplicationUser User { get; set; } = null!;
     }
 }
